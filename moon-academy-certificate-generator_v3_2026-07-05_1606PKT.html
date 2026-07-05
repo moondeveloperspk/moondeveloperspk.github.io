@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moon Academy - Certificate Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap');
+
+  :root{
+    --navy:#152238;
+    --navy-2:#1f3255;
+    --gold:#c9a227;
+    --gold-light:#e6cf7d;
+    --paper:#faf6ec;
+    --ink:#20242c;
+    --muted:#6b6255;
+    --danger:#a3392f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e9e3d6;font-family:'Inter',sans-serif;color:var(--ink);}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    background:var(--navy);color:#f3ead0;
+    padding:14px 22px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 4px 14px rgba(0,0,0,.2);
+  }
+  .topbar .brand{display:flex;align-items:center;gap:10px;}
+  .topbar .brand b{font-family:'Playfair Display',serif;font-size:17px;letter-spacing:.03em;color:var(--gold-light);}
+  .topbar .tabs{display:flex;gap:8px;}
+  .tab-btn{
+    background:transparent;border:1px solid rgba(230,207,125,.4);color:#e6cf7d;
+    padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;
+  }
+  .tab-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+
+  .wrap{max-width:900px;margin:0 auto;padding:26px 18px 60px;}
+
+  /* ---------- FORM ---------- */
+  .form-card{
+    background:#fff;border-radius:12px;padding:28px 30px;box-shadow:0 6px 22px rgba(0,0,0,.08);margin-bottom:24px;
+  }
+  .form-card h2{
+    font-family:'Playfair Display',serif;color:var(--navy);font-size:20px;margin:0 0 4px;
+  }
+  .form-card .sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  .field-group{margin-bottom:16px;}
+  .field-group label{
+    display:block;font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:5px;letter-spacing:.01em;
+  }
+  .field-group input, .field-group select{
+    width:100%;padding:10px 12px;border:1.5px solid #ddd6c4;border-radius:7px;font-size:14px;
+    font-family:'Inter',sans-serif;background:#fbfaf5;
+  }
+  .field-group input:focus, .field-group select:focus{outline:none;border-color:var(--gold);}
+  .field-group .note{font-size:11px;color:var(--muted);margin-top:4px;}
+
+  .btn-row{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .btn{
+    padding:11px 22px;border-radius:7px;border:none;font-weight:700;font-size:14px;cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-primary{background:var(--gold);color:var(--navy);}
+  .btn-primary:hover{background:var(--gold-light);}
+  .btn-secondary{background:#eee7d6;color:var(--navy);}
+  .btn-secondary:hover{background:#e2d9bf;}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+  .btn-danger:hover{background:var(--danger);color:#fff;}
+
+  /* ---------- SETTINGS ---------- */
+  .settings-box{
+    background:#fff;border-radius:12px;padding:18px 22px;box-shadow:0 6px 22px rgba(0,0,0,.06);
+    display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:24px;
+  }
+  .settings-box .field-group{margin-bottom:0;flex:1;min-width:240px;}
+
+  /* ---------- RECORDS LIST ---------- */
+  .records-card{background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 6px 22px rgba(0,0,0,.06);}
+  .records-card h3{font-family:'Playfair Display',serif;color:var(--navy);font-size:17px;margin:0 0 14px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;padding:8px 10px;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #eee7d6;}
+  td{padding:10px 10px;border-bottom:1px solid #f1ede2;}
+  tr:hover td{background:#faf7ee;}
+  .mini-btn{
+    padding:5px 11px;border-radius:5px;font-size:12px;border:none;cursor:pointer;font-weight:600;margin-right:5px;
+  }
+  .mini-btn.view{background:var(--navy);color:#fff;}
+  .mini-btn.del{background:#f6e6e3;color:var(--danger);}
+  .empty-note{color:var(--muted);font-size:13.5px;padding:14px 0;}
+
+  /* ---------- CERTIFICATE VIEW ---------- */
+  #certScreen{display:none;}
+  .cert-toolbar{
+    max-width:1122px;margin:0 auto 18px;padding:14px 18px;background:var(--navy);color:#f3ead0;
+    border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;
+  }
+  .cert-toolbar button{
+    background:var(--gold);color:var(--navy);border:none;padding:9px 18px;border-radius:6px;font-weight:700;
+    cursor:pointer;font-size:13px;margin-left:8px;
+  }
+  .cert-toolbar button.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold-light);}
+
+  .stage{display:flex;justify-content:center;padding:0 14px 60px;}
+
+  .certificate{
+    width:1122px;height:794px;background:var(--paper);position:relative;
+    box-shadow:0 18px 50px rgba(0,0,0,.28);padding:26px;
+  }
+  .border-outer{position:absolute;inset:26px;border:2px solid var(--navy);}
+  .border-inner{position:absolute;inset:38px;border:1px solid var(--gold);}
+
+  .corner{position:absolute;width:120px;height:120px;opacity:.9;}
+  .corner svg{width:100%;height:100%;}
+  .c-tl{top:14px;left:14px;} .c-tr{top:14px;right:14px;transform:scaleX(-1);}
+  .c-bl{bottom:14px;left:14px;transform:scaleY(-1);} .c-br{bottom:14px;right:14px;transform:scale(-1,-1);}
+
+  .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;padding:56px 90px 30px;text-align:center;}
+  .brandrow{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .brand-mark{width:34px;height:34px;flex-shrink:0;}
+  .academy-name{font-family:'Playfair Display',serif;font-weight:700;font-size:22px;color:var(--navy);letter-spacing:.04em;text-transform:uppercase;}
+  .academy-sub{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  .divider{width:70px;height:2px;background:var(--gold);margin:18px 0 16px;}
+  .cert-title{font-family:'Playfair Display',serif;font-weight:900;font-size:44px;color:var(--navy);letter-spacing:.03em;text-transform:uppercase;margin:2px 0 4px;}
+  .cert-subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--muted);margin-bottom:26px;}
+  .presented{font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .student-name{font-family:'Playfair Display',serif;font-weight:700;font-size:38px;color:var(--navy-2);border-bottom:1.5px solid var(--gold);padding:0 20px 8px;min-width:420px;margin-bottom:20px;}
+  .body-text{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.7;color:var(--ink);max-width:680px;}
+  .body-text .course, .body-text .duration{font-weight:700;color:var(--navy);font-style:normal;}
+  .bottom-row{margin-top:auto;width:100%;display:flex;justify-content:space-between;align-items:flex-end;padding-top:34px;}
+  .sig-block{text-align:center;width:210px;}
+  .sig-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;border-bottom:1px solid var(--ink);padding-bottom:6px;margin-bottom:6px;min-height:26px;}
+  .sig-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .seal{width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 32% 28%, var(--gold-light), var(--gold) 55%, #a9821c 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,.25), inset 0 0 0 3px var(--paper), inset 0 0 0 5px var(--navy);position:relative;flex-shrink:0;}
+  .seal-text{font-family:'Playfair Display',serif;font-weight:700;color:var(--navy);font-size:11px;text-align:center;line-height:1.25;letter-spacing:.05em;text-transform:uppercase;}
+  .meta-row{position:absolute;bottom:16px;left:0;right:0;display:flex;justify-content:space-between;padding:0 60px;font-size:10px;color:var(--muted);letter-spacing:.05em;}
+
+  .qr-block{position:absolute;right:52px;bottom:64px;text-align:center;z-index:3;}
+  .qr-block #qrcode{background:#fff;padding:4px;border:1px solid var(--gold);display:inline-block;line-height:0;}
+  .qr-block #qrcode img{display:block;}
+  .qr-label{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+
+  @media print{
+    .topbar,.cert-toolbar{display:none;}
+    .stage{padding:0;}
+    .certificate{box-shadow:none;margin:0;}
+    @page{size:A4 landscape; margin:0;}
+    #formScreen{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- ================= FORM SCREEN ================= -->
+  <div id="formScreen">
+    <div class="topbar">
+      <div class="brand"><b>Moon Academy — Certificate Generator</b></div>
+      <div style="font-size:11px;color:#cfc4a0;letter-spacing:.05em;">v3.0 &nbsp;•&nbsp; 05 Jul 2026, 16:06 PKT</div>
+    </div>
+
+    <div class="wrap">
+
+      <div class="settings-box">
+        <div class="field-group">
+          <label>Verification Base URL (GitHub Pages link, set once)</label>
+          <input id="baseUrlInput" type="text" placeholder="https://yourname.github.io/verify.html">
+          <div class="note">Used for the QR code. Set this once — it will be remembered automatically.</div>
+        </div>
+        <button class="btn btn-secondary" onclick="saveBaseUrl()">Save URL</button>
+      </div>
+
+      <div class="form-card">
+        <h2>Naya Certificate</h2>
+        <div class="sub">Fill in the form below and click "Generate Certificate" — the certificate and QR code will be created automatically.</div>
+
+        <div class="grid2">
+          <div class="field-group">
+            <label>Student Name *</label>
+            <input id="f_name" type="text" placeholder="e.g. Ayesha Khan">
+          </div>
+          <div class="field-group">
+            <label>Father's Name</label>
+            <input id="f_father" type="text" placeholder="e.g. Muhammad Khan">
+          </div>
+          <div class="field-group">
+            <label>Course *</label>
+            <input id="f_course" type="text" value="Computer Operator">
+          </div>
+          <div class="field-group">
+            <label>Duration *</label>
+            <input id="f_duration" type="text" value="1 (One) Year">
+          </div>
+          <div class="field-group">
+            <label>Date of Issue *</label>
+            <input id="f_date" type="date">
+          </div>
+          <div class="field-group">
+            <label>Certificate No.</label>
+            <input id="f_certno" type="text" placeholder="Auto-generated">
+            <div class="note">Leave blank to auto-generate.</div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="generateCertificate()">Generate Certificate</button>
+          <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+        </div>
+      </div>
+
+      <div class="records-card">
+        <h3>Previous Certificates (<span id="recordCount">0</span>)</h3>
+        <div id="recordsTableWrap"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= CERTIFICATE SCREEN ================= -->
+  <div id="certScreen">
+    <div class="cert-toolbar">
+      <div><b>Certificate Ready</b></div>
+      <div>
+        <button class="ghost" onclick="backToForm()">← Back to Form</button>
+        <button onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="certificate" id="cert">
+        <div class="border-outer"></div>
+        <div class="border-inner"></div>
+
+        <div class="corner c-tl"><svg viewBox="0 0 120 120" fill="none"><path d="M10 60 L10 20 L20 10 L60 10" stroke="#152238" stroke-width="2"/><circle cx="10" cy="60" r="4" fill="#c9a227"/><circle cx="60" cy="10" r="4" fill="#c9a227"/><path d="M10 40 L30 40 L30 30" stroke="#c9a227" stroke-width="1.5"/><circle cx="30" cy="30" r="3" fill="#152238"/><path d="M40 10 L40 25 L55 25" stroke="#c9a227" stroke-width="1.5"/><circle cx="55" cy="25" r="3" fill="#152238"/></svg></div>
+        <div class="corner c-tr"><svg viewBox="0 0 120 120" fill="none"><path d="M10 60 L10 20 L20 10 L60 10" stroke="#152238" stroke-width="2"/><circle cx="10" cy="60" r="4" fill="#c9a227"/><circle cx="60" cy="10" r="4" fill="#c9a227"/><path d="M10 40 L30 40 L30 30" stroke="#c9a227" stroke-width="1.5"/><circle cx="30" cy="30" r="3" fill="#152238"/><path d="M40 10 L40 25 L55 25" stroke="#c9a227" stroke-width="1.5"/><circle cx="55" cy="25" r="3" fill="#152238"/></svg></div>
+        <div class="corner c-bl"><svg viewBox="0 0 120 120" fill="none"><path d="M10 60 L10 20 L20 10 L60 10" stroke="#152238" stroke-width="2"/><circle cx="10" cy="60" r="4" fill="#c9a227"/><circle cx="60" cy="10" r="4" fill="#c9a227"/><path d="M10 40 L30 40 L30 30" stroke="#c9a227" stroke-width="1.5"/><circle cx="30" cy="30" r="3" fill="#152238"/><path d="M40 10 L40 25 L55 25" stroke="#c9a227" stroke-width="1.5"/><circle cx="55" cy="25" r="3" fill="#152238"/></svg></div>
+        <div class="corner c-br"><svg viewBox="0 0 120 120" fill="none"><path d="M10 60 L10 20 L20 10 L60 10" stroke="#152238" stroke-width="2"/><circle cx="10" cy="60" r="4" fill="#c9a227"/><circle cx="60" cy="10" r="4" fill="#c9a227"/><path d="M10 40 L30 40 L30 30" stroke="#c9a227" stroke-width="1.5"/><circle cx="30" cy="30" r="3" fill="#152238"/><path d="M40 10 L40 25 L55 25" stroke="#c9a227" stroke-width="1.5"/><circle cx="55" cy="25" r="3" fill="#152238"/></svg></div>
+
+        <div class="content">
+          <div class="brandrow">
+            <svg class="brand-mark" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="4" stroke="#152238" stroke-width="2"/><path d="M12 20 L18 26 L28 14" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <div class="academy-name">Moon Academy</div>
+              <div class="academy-sub">Computer Education &amp; Skills Training</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="cert-title">Certificate</div>
+          <div class="cert-subtitle">of Completion</div>
+          <div class="presented">This certificate is proudly presented to</div>
+          <div class="student-name" id="out_name">Student Name</div>
+
+          <div class="body-text">
+            <span id="out_fatherline"></span>
+            for successfully completing the course of
+            <span class="course" id="out_course">Computer Operator</span>
+            with dedication and hard work, having completed a program of
+            <span class="duration" id="out_duration">1 (One) Year</span>
+            duration, and is hereby awarded this certificate in recognition
+            of the knowledge and skills gained.
+          </div>
+
+          <div class="bottom-row">
+            <div class="sig-block">
+              <div class="sig-line" id="out_date">05 July, 2026</div>
+              <div class="sig-label">Date of Issue</div>
+            </div>
+            <div class="seal"><div class="seal-text">MOON<br>ACADEMY<br>★</div></div>
+            <div class="sig-block">
+              <div class="sig-line">&nbsp;</div>
+              <div class="sig-label">Director / Instructor</div>
+            </div>
+          </div>
+
+          <div class="qr-block">
+            <div id="qrcode"></div>
+            <div class="qr-label">Scan to Verify</div>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <span id="out_certno">Certificate No: MA-2026-001</span>
+          <span>Moon Developers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  const STORAGE_KEY = 'moonAcademyCertRecords';
+  const URL_KEY = 'certVerifyBaseUrl';
+
+  function getBaseUrl(){ return localStorage.getItem(URL_KEY) || ''; }
+  function saveBaseUrl(){
+    const v = document.getElementById('baseUrlInput').value.trim();
+    localStorage.setItem(URL_KEY, v);
+    alert('Verification URL saved.');
+  }
+
+  function getRecords(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ return []; }
+  }
+  function saveRecords(list){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function nextCertNo(){
+    const year = new Date().getFullYear();
+    const list = getRecords().filter(r => r.certno && r.certno.includes(String(year)));
+    const num = list.length + 1;
+    return `MA-${year}-${String(num).padStart(3,'0')}`;
+  }
+
+  function formatDate(iso){
+    if(!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+  }
+
+  function clearForm(){
+    document.getElementById('f_name').value = '';
+    document.getElementById('f_father').value = '';
+    document.getElementById('f_course').value = 'Computer Operator';
+    document.getElementById('f_duration').value = '1 (One) Year';
+    document.getElementById('f_date').value = '';
+    document.getElementById('f_certno').value = '';
+  }
+
+  function generateCertificate(){
+    const name = document.getElementById('f_name').value.trim();
+    const father = document.getElementById('f_father').value.trim();
+    const course = document.getElementById('f_course').value.trim();
+    const duration = document.getElementById('f_duration').value.trim();
+    const dateIso = document.getElementById('f_date').value;
+    let certno = document.getElementById('f_certno').value.trim();
+
+    if(!name || !course || !duration || !dateIso){
+      alert('Please fill in Student Name, Course, Duration, and Date of Issue.');
+      return;
+    }
+    if(!certno) certno = nextCertNo();
+
+    const dateFormatted = formatDate(dateIso);
+
+    const record = { name, father, course, duration, date: dateFormatted, certno, savedAt: new Date().toISOString() };
+    const records = getRecords();
+    records.unshift(record);
+    saveRecords(records);
+
+    renderCertificate(record);
+    renderRecordsTable();
+
+    document.getElementById('formScreen').style.display = 'none';
+    document.getElementById('certScreen').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  function renderCertificate(record){
+    document.getElementById('out_name').textContent = record.name;
+    document.getElementById('out_course').textContent = record.course;
+    document.getElementById('out_duration').textContent = record.duration;
+    document.getElementById('out_date').textContent = record.date;
+    document.getElementById('out_certno').textContent = 'Certificate No: ' + record.certno;
+    document.getElementById('out_fatherline').textContent = record.father ? `son/daughter of ${record.father}, ` : '';
+
+    const container = document.getElementById('qrcode');
+    container.innerHTML = '';
+    const base = getBaseUrl();
+
+    if(!base){
+      container.innerHTML = '<div style="width:70px;height:70px;display:flex;align-items:center;justify-content:center;font-size:8.5px;color:#999;text-align:center;padding:4px;">Set Verify URL on form page</div>';
+      return;
+    }
+
+    const params = new URLSearchParams({
+      name: record.name, course: record.course, duration: record.duration,
+      date: record.date, certno: record.certno
+    });
+    const verifyUrl = base + '?' + params.toString();
+
+    new QRCode(container, {
+      text: verifyUrl, width: 78, height: 78,
+      colorDark: '#152238', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  function renderRecordsTable(){
+    const records = getRecords();
+    document.getElementById('recordCount').textContent = records.length;
+    const wrap = document.getElementById('recordsTableWrap');
+
+    if(records.length === 0){
+      wrap.innerHTML = '<div class="empty-note">No certificates generated yet. Fill in the form above to get started.</div>';
+      return;
+    }
+
+    let html = '<table><thead><tr><th>Student</th><th>Course</th><th>Duration</th><th>Date</th><th>Cert No.</th><th></th></tr></thead><tbody>';
+    records.forEach((r, idx) => {
+      html += `<tr>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.course)}</td>
+        <td>${escapeHtml(r.duration)}</td>
+        <td>${escapeHtml(r.date)}</td>
+        <td>${escapeHtml(r.certno)}</td>
+        <td>
+          <button class="mini-btn view" onclick="reopenRecord(${idx})">View / Print</button>
+          <button class="mini-btn del" onclick="deleteRecord(${idx})">Delete</button>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div'); d.innerText = s || ''; return d.innerHTML;
+  }
+
+  function reopenRecord(idx){
+    const records = getRecords();
+    const record = records[idx];
+    if(!record) return;
+    renderCertificate(record);
+    document.getElementById('formScreen').style.display = 'none';
+    document.getElementById('certScreen').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  function deleteRecord(idx){
+    if(!confirm('Delete this certificate record?')) return;
+    const records = getRecords();
+    records.splice(idx,1);
+    saveRecords(records);
+    renderRecordsTable();
+  }
+
+  function backToForm(){
+    document.getElementById('certScreen').style.display = 'none';
+    document.getElementById('formScreen').style.display = 'block';
+  }
+
+  window.addEventListener('DOMContentLoaded', function(){
+    const savedUrl = getBaseUrl();
+    if(savedUrl) document.getElementById('baseUrlInput').value = savedUrl;
+    renderRecordsTable();
+  });
+</script>
+
+</body>
+</html>

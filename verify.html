@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificate Verification - Moon Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap');
+
+  :root{
+    --navy:#152238;
+    --navy-2:#1f3255;
+    --gold:#c9a227;
+    --gold-light:#e6cf7d;
+    --paper:#faf6ec;
+    --ink:#20242c;
+    --muted:#6b6255;
+    --good:#1f7a4c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;min-height:100vh;
+    background:linear-gradient(160deg,#152238,#1f3255 60%,#152238);
+    font-family:'Inter',sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+  }
+
+  .card{
+    width:100%;max-width:480px;
+    background:var(--paper);
+    border-radius:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,.4);
+    overflow:hidden;
+    border:1px solid rgba(201,162,39,.4);
+  }
+
+  .card-head{
+    background:var(--navy);
+    padding:26px 26px 20px;
+    text-align:center;
+    position:relative;
+  }
+  .brand-mark{width:30px;height:30px;margin-bottom:8px;}
+  .academy-name{
+    font-family:'Playfair Display',serif;font-weight:700;
+    color:#f3ead0;font-size:19px;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .academy-sub{
+    font-size:10.5px;color:#cfc4a0;letter-spacing:.15em;text-transform:uppercase;margin-top:3px;
+  }
+
+  .status{
+    margin:-16px 26px 0;
+    background:var(--good);
+    color:#fff;
+    border-radius:10px;
+    padding:12px 16px;
+    display:flex;align-items:center;gap:10px;
+    font-weight:600;font-size:14px;
+    box-shadow:0 8px 20px rgba(31,122,76,.35);
+    position:relative;z-index:2;
+  }
+  .status.invalid{background:#a3392f;box-shadow:0 8px 20px rgba(163,57,47,.35);}
+  .status svg{width:20px;height:20px;flex-shrink:0;}
+
+  .body{
+    padding:34px 30px 30px;
+  }
+
+  .field{
+    margin-bottom:18px;
+  }
+  .field:last-child{margin-bottom:0;}
+  .field-label{
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;
+  }
+  .field-value{
+    font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);
+  }
+  .field-value.course{color:var(--navy-2);}
+
+  .divider{height:1px;background:rgba(107,98,85,.25);margin:20px 0;}
+
+  .row2{display:flex;gap:18px;}
+  .row2 .field{flex:1;}
+
+  .footer-note{
+    text-align:center;font-size:11.5px;color:var(--muted);margin-top:24px;line-height:1.6;
+  }
+  .footer-note b{color:var(--navy);}
+
+  .empty{
+    text-align:center;padding:20px 0;color:var(--muted);font-size:14px;line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card" id="cardRoot">
+    <div class="card-head">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" style="margin:0 auto 8px;display:block;">
+        <rect x="4" y="4" width="32" height="32" rx="4" stroke="#e6cf7d" stroke-width="2"/>
+        <path d="M12 20 L18 26 L28 14" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="academy-name">Moon Academy</div>
+      <div class="academy-sub">Certificate Verification</div>
+    </div>
+
+    <div id="statusBox" class="status">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="statusText">Verified — Original Certificate</span>
+    </div>
+
+    <div class="body" id="bodyContent">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+<script>
+  function getParam(name){
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
+  function esc(s){
+    if(!s) return '';
+    const d = document.createElement('div');
+    d.innerText = s;
+    return d.innerHTML;
+  }
+
+  const name = getParam('name');
+  const course = getParam('course');
+  const duration = getParam('duration');
+  const certno = getParam('certno');
+  const date = getParam('date');
+
+  const bodyContent = document.getElementById('bodyContent');
+
+  if(!name && !certno){
+    document.getElementById('statusBox').classList.add('invalid');
+    document.getElementById('statusText').textContent = 'No Certificate Data Found';
+    bodyContent.innerHTML = `<div class="empty">This link did not contain any certificate details.<br>Please scan the QR code directly from a valid Moon Academy certificate.</div>`;
+  } else {
+    bodyContent.innerHTML = `
+      <div class="field">
+        <div class="field-label">Student Name</div>
+        <div class="field-value">${esc(name) || '—'}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Course Completed</div>
+        <div class="field-value course">${esc(course) || '—'}</div>
+      </div>
+      <div class="divider"></div>
+      <div class="row2">
+        <div class="field">
+          <div class="field-label">Duration</div>
+          <div class="field-value" style="font-size:18px;">${esc(duration) || '—'}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Date of Issue</div>
+          <div class="field-value" style="font-size:18px;">${esc(date) || '—'}</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:18px;">
+        <div class="field-label">Certificate No.</div>
+        <div class="field-value" style="font-size:18px;">${esc(certno) || '—'}</div>
+      </div>
+      <div class="footer-note">This record was verified against <b>Moon Academy</b>'s issued certificates.<br>Issued by Moon Developers.</div>
+    `;
+  }
+</script>
+
+</body>
+</html>
